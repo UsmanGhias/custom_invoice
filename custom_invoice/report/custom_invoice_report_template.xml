@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <template id="custom_invoice_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <link rel="preconnect" href="https://fonts.googleapis.com"/>
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true"/>
+                <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&amp;family=Noto+Sans+Arabic:wght@500;700&amp;family=Readex+Pro:wght@200;300;400;500;600;700&amp;family=Rubik:ital,wght@0,300;0,400;0,700;1,300;1,400&amp;display=swap" rel="stylesheet"/>
+                <t t-call="custom_invoice.custom_external_layout">
+                    <t t-set="print_header" t-value="o.print_header"/>
+                    <style>
+                        .page {
+                            font-family: 'Readex Pro', sans-serif;
+                        }
+                        .commercial-details {
+                            justify-content: center;
+                            align-items: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                            
+
+                        }
+                        .commercial-details table {
+                            <!-- margin-bottom: 0; -->
+                        }
+                        
+                        .commercial-details div.col-5 {
+                            display: flex;
+                            flex-direction: column;
+                            <!-- border: 1px solid black; -->
+                            padding: 10px;
+                        }
+                        .right, .left {
+                            font-size: 10px;
+                        }
+                        .right div, .left div {
+                            margin-bottom: 5px;
+                        }
+                        .commercial-details div.col-6 {
+                            text-align: center
+                        }
+                        .ltr-col {
+                            text-align: left;
+                            direction: ltr;
+                        }
+                        .description {
+                            font-size: 12px;
+                        }
+                        td.separator {
+                            border: none !important;
+                        }
+                        .product-lines table {
+                            text-align: center;
+                            font-size: 12px;
+                        }
+                        .product-lines table th, .product-lines table td {
+                            border: 1px solid grey;
+                        }
+
+                        .sums-table table, amount {
+                            font-size: 12px;
+                        }
+                        
+                        table.sums td {
+                            border: 1px solid grey;
+                        }
+                        .amount {
+                            directoin: rtl;
+
+                        }
+
+                        .bank-section {
+                            margin-top: 10px;
+                            border: 1px solid grey;
+                            padding: 5px;
+                            <!-- width: 50%; -->
+                            font-size: 14px;
+                            direction: ltr;
+                            <!-- float: left; -->
+                        }
+                        .signature-section div div {
+                            padding: 30px;
+                        }
+
+                    </style>
+                    <div class="page custom_invoice" dir="rtl">
+                        <div class="title text-center" dir="ltr">
+                            <h4>VAT Invoice فاتورة ضريبية</h4>
+                        </div>
+                        <div class="commercial-details row">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td width="48%">
+                                            <div class="right">
+                                                <div class="row">
+                                                    <div class="col-3">فاتورة#</div>
+                                                    <div class="col-6"><t t-esc="o.name"/></div>
+                                                    <div class="col-3 ltr-col">Invoice#</div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-3">مرجع العقد</div>
+                                                    <div class="col-6"><t t-esc="o.ref"/></div>
+                                                    <div class="col-3 ltr-col">Contract Ref.#</div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-3">تاريخ</div>
+                                                    <div class="col-6"><t t-esc="o.invoice_date"/></div>
+                                                    <div class="col-3 ltr-col">Date</div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-3">تاريخ الإصدار</div>
+                                                    <div class="col-6"><t t-esc="o.get_current_date()"/></div>
+                                                    <div class="col-3 ltr-col">Issue Date</div>
+                                                </div>
+                                                
+                                            </div>
+                                        </td>
+                                        <td class="separator" style="border:none;"></td>
+                                        <td width="48%">
+                                            <div class="left">
+                                                <div class="row">
+                                                    <div class="col-2">مشتري:</div>
+                                                    <div class="col-4"><t t-esc="o.partner_id.name"/></div>
+                                                    <div class="col-4 ltr-col"><t t-esc="o.partner_id.english_name"/></div>
+                                                    <div class="col-2 ltr-col">M/S.:</div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-3">رقم ضريبة القيمة المضافة للعميل</div>
+                                                    <div class="col-6"><t t-esc="o.partner_id.vat"/></div>
+                                                    <div class="col-3 ltr-col">Client VAT</div>
+                                                </div>
+                                                <div class="row">
+                                                    <t t-set="invoice_partner_id" t-value="(o.partner_id.child_ids.filtered(lambda partner: partner.type == 'invoice')[0] if o.partner_id.child_ids.filtered(lambda partner: partner.type == 'invoice') else o.partner_id) if o.partner_id.child_ids else o.partner_id"/>
+                                                    <div class="col-2">الإنتباه إلى:</div>
+                                                    <div class="col-4"><t t-esc="invoice_partner_id.name"/></div>
+                                                    <div class="col-4 ltr-col"><t t-esc="invoice_partner_id.english_name"/></div>
+                                                    <div class="col-2 ltr-col">Attention to:</div>
+                                                </div>
+                                                <!-- Set the adress of the partner -->
+                                                <t t-set="line_1" t-value="o.partner_id.street"/>
+                                                <t t-if="o.partner_id.street2">
+                                                    <t t-set="line_1" t-value="line_1 + ', ' + o.partner_id.street2"/>
+                                                </t>
+                                                <t t-set="line_2" t-value="o.partner_id.city"/>
+                                                <t t-if="o.partner_id.state_id">
+                                                    <t t-set="line_2" t-value="line_2 + ', ' + o.partner_id.state_id.name"/>
+                                                </t>
+                                                <t t-if="o.partner_id.zip">
+                                                    <t t-set="line_2" t-value="line_2 + ', ' + o.partner_id.zip"/>
+                                                </t>
+                                                <t t-set="line_3" t-value="o.partner_id.country_id.name"/>
+                                                <div class="row">
+                                                    <div class="col-3">العنوان:</div>
+                                                    <div class="col-6">
+                                                        <t t-esc="line_1"/>
+                                                        <br/>
+                                                        <t t-esc="line_2"/>
+                                                        <br/>
+                                                        <t t-esc="line_3"/>
+                                                    </div>
+                                                    <div class="col-3 ltr-col">Address:</div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-3">هاتف:</div>
+                                                    <div class="col-6" style="direction: ltr;"><t t-esc="o.partner_id.phone"/></div>
+                                                    <div class="col-3 ltr-col">Tele.:</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            
+                        </div>
+
+                        <div class="description text-center">
+                            <table class="table">
+                                <tr>
+                                    <td>
+                                        <t t-esc="o.project_description"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <t t-set="subtotal" t-value="0.0"/>
+                        <div class="product-lines">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th width="15%">
+                                            السعر الكلي
+                                            <br/>
+                                            Total Price
+                                        </th>
+                                        <th width="20%">
+                                            سعر مبلغ مقطوع
+                                            <br/>
+                                            Lump Sum Price
+                                        </th>
+                                        <th width="10">
+                                            كمية
+                                            <br/>
+                                            Quantity
+                                        </th>
+                                        <th>
+                                            وصف
+                                            <br/>
+                                            Description
+                                        </th>
+                                        <th width="15%">
+                                            رقم تسلسلي
+                                            <br/>
+                                            Serial Number
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="serial" t-value="1"/>
+                                    <t t-set="subtotal" t-value="0.0"/>
+                                    <t t-foreach="o.invoice_line_ids.filtered(lambda line: line.display_type == 'product' and line.quantity > 0)" t-as="line">
+                                        <tr>
+                                            <td><t t-esc="'{:,.2f}'.format(line.price_subtotal)"/></td>
+                                            <td><t t-esc="'{:,.2f}'.format(line.price_unit)"/></td>
+                                            <td><t t-esc="'{:,.2f}'.format(line.quantity)"/></td>
+                                            <td><t t-esc="line.name"/></td>
+                                            <td><t t-esc="serial"/></td>
+                                        </tr>
+                                        <t t-set="serial" t-value="serial + 1"/>
+                                        <t t-set="subtotal" t-value="subtotal + line.price_subtotal"/>
+                                    </t>
+                                    <t t-set="advance_payment" t-value="0.0"/>
+                                    <t t-foreach="o.invoice_line_ids.filtered(lambda line: line.display_type == 'product' and line.quantity &lt; 0)" t-as="line">
+                                        <t t-set="advance_payment" t-value="advance_payment + line.price_subtotal"/>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="sums-table">
+
+                                    <div class="row mb-2" dir="ltr">
+                                        <div class="col-5">
+                                            
+                                                <img t-if="o.l10n_sa_qr_code_str"
+                                                     style="display:block;"
+                                                     t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', quote_plus(o.l10n_sa_qr_code_str), 200, 200)"/>
+                                            
+                                        </div>
+                                        <div class="col-7">
+                                            <table class="table table-bordered sums">
+                                                <tr>
+                                                    <td>
+                                                        Subtotal
+                                                        <br/>
+                                                        المجموع الفرعي
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(subtotal)"/></td>
+                                                </tr>
+                                                <tr t-if="advance_payment &lt; 0">
+                                                    <td>
+                                                        Less 0% Advance Deduction
+                                                        <br/>
+                                                        مقدما(0)
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(abs(advance_payment))"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Total Excluding VAT
+                                                        <br/>
+                                                        إجمالي باستثناء ضريبة القيمة المضافة
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(o.amount_untaxed)"/></td>
+                                                </tr>
+                                                <tr t-if="o.amount_tax > 0">
+                                                    <td>
+                                                        15% VAT Amount
+                                                        <br/>
+                                                        15% مبلغ ضريبة القيمة المضافة
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(o.amount_tax)"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Total Including VAT
+                                                        <br/>
+                                                        الإجمالي شاملا ضريبة القيمة المضافة
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(o.amount_total)"/></td>
+                                                </tr>
+                                                <t t-set="retention" t-value="sum(o.line_ids.filtered(lambda line: line.is_retention_line).mapped('amount_currency')) or 0.0"/>
+                                                <tr t-if="retention > 0">
+                                                    <td>
+                                                        Less 0% Retention
+                                                        <br/>
+                                                        أقل استبقاء (0)
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(retention)"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Net Payable
+                                                        <br/>
+                                                        صافي المدفوع
+                                                    </td>
+                                                    <td><t t-esc="'{:,.2f}'.format(o.amount_total - retention)"/></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                
+                        </div>
+
+                        <div class="amount">
+                            <t t-esc="o.amount_in_words"/>
+                        </div>
+                        
+                        <div class="ltr-col">
+                            <u>Payment Terms:</u>
+                            <t t-esc="o.invoice_payment_term_id.name"/>
+                        </div>
+                        <div class="bank-section">
+                            <u>Bank Details:</u>
+                            <div class="bank-details ltr-col">
+                                <div class="row">
+                                    <div class="col-4">
+                                        Benificiery Name
+                                    </div>
+                                    <div class="col-8">
+                                        : <t t-esc="o.partner_bank_id.partner_id.name"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4">
+                                        A/C No.
+                                    </div>
+                                    <div class="col-8">
+                                        <t t-if="o.partner_bank_id">
+                                            : <t t-esc="o.partner_bank_id.acc_number"/>
+                                        </t>
+                                        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4">
+                                        IBAN
+                                    </div>
+                                    <div class="col-8">
+                                        <t t-if="o.partner_bank_id">
+                                            : <t t-esc="o.partner_bank_id.iban"/>
+                                        </t>
+                                        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4">
+                                        Bank
+                                    </div>
+                                    <div class="col-8">
+                                        <t t-if="o.partner_bank_id">
+                                            : <t t-esc="o.partner_bank_id.bank_id.name"/>
+                                        </t>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="signature-section">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <hr/>
+                                    Receiver's Name &amp; Signature
+                                    <br/>
+                                    اسم المتلقي و توقيعه
+                                </div>
+                                <div class="col-4">
+                                    <hr/>
+                                    Accounts Dept
+                                    <br/>
+                                    قسم الحسابات
+                                </div>
+                                <div class="col-4">
+                                    <hr/>
+                                    Salesman Signature 
+                                    <br/>
+                                    توقيع رجل المبيعات
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                THANK YOU FOR YOUR BUSINESS
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

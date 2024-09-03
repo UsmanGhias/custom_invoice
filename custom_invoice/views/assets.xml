@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="Custom Invoice Assets Backend " inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" href="/custom_invoice/static/src/css/primary_variables.css"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'ARIAL';
+    src: url('/custom_invoice/static/src/fonts/ARIAL.TTF') format('truetype');
+}
+
+div.custom_invoice {
+    font-family: 'ARIAL' !important;
+    font-weight:bold;
+}

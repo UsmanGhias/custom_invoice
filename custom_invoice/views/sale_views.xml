@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_view_form_inherit" model="ir.ui.view">
+        <field name="name">model.name.view.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="edit_retention_percentage" invisible="1"/>
+                <field name="retention_percentage_id" attrs="{'readonly': [('edit_retention_percentage', '=', False)]}" force_save="1"/>
+                <!-- <field name="invoices_number" /> -->
+                <field name="project_description"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

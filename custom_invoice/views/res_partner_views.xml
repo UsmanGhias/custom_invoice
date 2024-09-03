@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_partner_view_inherit" model="ir.ui.view">
+        <field name="name">model.name.view.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="show_retention_options" invisible="1" />
+                <field name="retention_money"/>
+                <field name="retention_percentage_id" attrs="{'invisible': [('retention_money', '=', False)]}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="english_name" placeholder="Name in English"/>
+            </xpath>
+            
+        </field>
+    </record>
+
+    <record id="res_partner_bank_inherit" model="ir.ui.view">
+        <field name="name">model.name.view.form.inherit</field>
+        <field name="model">res.partner.bank</field>
+        <field name="inherit_id" ref="base.view_partner_bank_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='acc_number']" position="after">
+                <field name="iban" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_partner_bank_form_inherit" model="ir.ui.view">
+        <field name="name">model.name.view.form.inherit</field>
+        <field name="model">res.partner.bank</field>
+        <field name="inherit_id" ref="base.view_partner_bank_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='acc_number']" position="after">
+                <field name="iban" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
